@@ -20,7 +20,8 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
 
   constructor() {
     super();
-    this.title = "";
+    this.title = ""; 
+    this = 2;
     this.t = this.t || {};
     this.t = {
       ...this.t,
