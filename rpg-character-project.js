@@ -5,6 +5,7 @@
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
+import '@haxtheweb/rpg-character/rpg-character.js';
 
 /**
  * `rpg-character-project`
@@ -20,8 +21,10 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
 
   constructor() {
     super();
+    this.value = "";
+    this.loading = false;
+    this.items = [];
     this.title = ""; 
-    this = 2;
     this.t = this.t || {};
     this.t = {
       ...this.t,
@@ -41,6 +44,9 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
     return {
       ...super.properties,
       title: { type: String },
+      items: { type: Array },
+      loading: { type: Boolean, reflect: true },
+      value: { type: String },
     };
   }
 
@@ -68,8 +74,8 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
   render() {
     return html`
 <div class="wrapper">
-  <h3><span>${this.t.title}:</span> ${this.title}</h3>
-  <slot></slot>
+  ${this.items.map((item, index) => html`
+  <rpg-character seed = ${item.data[0]}></rpg-character>`)}
 </div>`;
   }
 
@@ -80,6 +86,29 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
     return new URL(`./lib/${this.tag}.haxProperties.json`, import.meta.url)
       .href;
   }
+
+  updated(changedProperties){
+    if (changedProperties.has('value') && this.value){
+      this.updateResults(this.value);
+    } else if (changedProperties.has('value') && !this.value){
+      this.items = [];
+
+    }
+  }
+
+  updateResults(value) {
+    this.loading = true;
+    fetch(`https://images-api.nasa.gov/search?media_type=image&q=${value}`).then(d => d.ok ? d.json(): {}).then(data => {
+      if(data.collection) {
+        this.items = [];
+        this.items = data.collection.items;
+        this.loading = false;
+      }
+  });
 }
+}
+
+
+
 
 globalThis.customElements.define(RpgCharacterProject.tag, RpgCharacterProject);
