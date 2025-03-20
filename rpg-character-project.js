@@ -21,6 +21,9 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
 
   constructor() {
     super();
+    this.limit = 25;
+    this.org = "";
+    this.repo = "";
     this.value = "";
     this.loading = false;
     this.items = [];
@@ -47,6 +50,9 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
       items: { type: Array },
       loading: { type: Boolean, reflect: true },
       value: { type: String },
+      repo: { type: String },
+      org: { type: String },
+      limit: { type: Number},
     };
   }
 
@@ -74,8 +80,11 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
   render() {
     return html`
 <div class="wrapper">
-  ${this.items.map((item, index) => html`
-  <rpg-character seed = ${item.data[0]}></rpg-character>`)}
+  ${this.items.filter((item, index) => index < this.limit).map((item) =>
+  html`
+  <rpg-character seed = "${item.login}"></rpg-character>
+  `
+  )}
 </div>`;
   }
 
@@ -88,24 +97,25 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   updated(changedProperties){
-    if (changedProperties.has('value') && this.value){
-      this.updateResults(this.value);
-    } else if (changedProperties.has('value') && !this.value){
-      this.items = [];
-
+    super.updated(changedProperties);
+    if (changedProperties.has('org') || changedProperties.has('repo')){
+      this.getData();
     }
   }
 
-  updateResults(value) {
-    this.loading = true;
-    fetch(`https://images-api.nasa.gov/search?media_type=image&q=${value}`).then(d => d.ok ? d.json(): {}).then(data => {
-      if(data.collection) {
-        this.items = [];
-        this.items = data.collection.items;
-        this.loading = false;
+  getData(){
+    const url = `https://api.github.com/repos/${this.org}/${this.repo}/contributors`;
+    try {
+      fetch(url).then(d => d.ok ? d.json(): {}).then(data => {
+        if (data){
+          this.items = [];
+          this.items = data;
+        }
+  });   
+      } catch (error){
+        console.error("Error collecting fetching data");
       }
-  });
-}
+  }
 }
 
 
