@@ -70,6 +70,21 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
         margin: var(--ddd-spacing-2);
         padding: var(--ddd-spacing-4);
       }
+      .characters{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .character{
+        padding: var(--ddd-spacing-3);
+        text-align: center;
+      }
+      .char-details{
+        display: flex;
+        flex-direction: column;
+        margin: var(--ddd-spacing-4);
+      }
+      
       h3 span {
         font-size: var(--rpg-character-project-label-font-size, var(--ddd-font-size-s));
       }
@@ -80,11 +95,23 @@ export class RpgCharacterProject extends DDDSuper(I18NMixin(LitElement)) {
   render() {
     return html`
 <div class="wrapper">
-  ${this.items.filter((item, index) => index < this.limit).map((item) =>
-  html`
-  <rpg-character seed = "${item.login}"></rpg-character>
-  `
-  )}
+  <h2>GitHub Repository:
+    <a href="https://github.com/${this.org}/${this.repo}">Org: ${this.org}, Repository: ${this.repo}</a>
+  </h2>
+    <div class="characters">
+      ${this.items.filter((item, index) => index < this.limit).map((item) =>
+      html`
+        <div class="character">
+          <a href="https://github.com/${item.login}"><rpg-character seed = "${item.login}"></rpg-character></a>
+        
+        <div class = "char-details">
+          <a href="https://github.com/${item.login}">${item.login}</a>
+          <h5 class="contributions">Contributions: ${item.contributions}</h5>
+          </div>
+        </div>
+      `
+      )}
+    </div>
 </div>`;
   }
 
